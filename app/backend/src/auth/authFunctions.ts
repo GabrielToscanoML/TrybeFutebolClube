@@ -1,7 +1,7 @@
 import * as jwt from 'jsonwebtoken';
 import { ILogin } from '../interfaces';
 
-const secret = process.env.JWT_SECRET || 'palmeirasnaotemmundial';
+const secret = process.env.JWT_SECRET || 'jwt_secret';
 
 const JWT_CONFIG: jwt.SignOptions = {
   algorithm: 'HS256',
