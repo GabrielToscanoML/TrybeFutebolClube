@@ -1,14 +1,4 @@
-// import { ITeams } from '../interfaces';
-// import teamsModel from '../models/team.model';
-
-// const getAll = async (): Promise<ITeams[]> => {
-//   const teams = await teamsModel.getAll();
-//   return teams;
-// };
-
-// const teamsService = { getAll };
-
-// export default teamsService;
+import { RowDataPacket } from 'mysql2';
 import { ModelStatic } from 'sequelize';
 import TeamModel from '../database/models/TeamModel';
 import { ITeams } from '../interfaces';
@@ -18,6 +8,11 @@ export default class TeamService {
 
   public getAll = async (): Promise<ITeams[]> => {
     const result: ITeams[] = await this._teams.findAll();
+    return result;
+  };
+
+  public getById = async (id: number): Promise<ITeams> => {
+    const result = <ITeams & RowDataPacket> await this._teams.findOne({ where: { id } });
     return result;
   };
 }
