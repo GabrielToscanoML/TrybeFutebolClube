@@ -31,7 +31,7 @@ export default class UserController {
   : Promise<Response | void> => {
     const { body } = req;
     const token = await this._userService.login(body);
-    // if (token === 'Error') return res.status(401).json({ message: 'Username or password invalid' });
+    if (token === 'Error') return res.status(401).json({ message: 'Invalid email or password' });
     return res.status(200).json({ token });
   };
 }
