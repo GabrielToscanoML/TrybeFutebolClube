@@ -10,8 +10,8 @@ const JWT_CONFIG: jwt.SignOptions = {
 
 const createToken = (data: ILogin) => jwt.sign({ data }, secret, JWT_CONFIG);
 
-// const verifyToken = (token) => jwt.verify(token, secret);
+const verifyToken = (token: string) => jwt.verify(token, secret);
 
-// const authFunctions = { createToken };
+const authFunctions = { createToken, verifyToken };
 
-export default createToken;
+export default authFunctions;
