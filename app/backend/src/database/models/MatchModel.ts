@@ -1,5 +1,6 @@
 import { Model, INTEGER, BOOLEAN } from 'sequelize';
 import db from '.';
+import Team from './TeamModel';
 
 export default class Match extends Model {
   declare id: number;
@@ -20,6 +21,10 @@ Match.init({
   homeTeamId: {
     type: INTEGER,
     allowNull: false,
+    references: {
+      model: 'teams',
+      key: 'id',
+    },
   },
   homeTeamGoals: {
     type: INTEGER,
@@ -28,6 +33,10 @@ Match.init({
   awayTeamId: {
     type: INTEGER,
     allowNull: false,
+    references: {
+      model: 'teams',
+      key: 'id',
+    },
   },
   awayTeamGoals: {
     type: INTEGER,
@@ -37,20 +46,21 @@ Match.init({
     type: BOOLEAN,
     allowNull: false,
   },
+  // homeTeam: {
+  //   type: BOOLEAN,
+  //   allowNull: false,
+  // },
+  // awayTeam: {
+  //   type: BOOLEAN,
+  //   allowNull: false,
+  // },
 }, {
   underscored: true,
   sequelize: db,
   timestamps: false,
   modelName: 'matches',
+  tableName: 'matches',
 });
 
-/**
-  * `Workaround` para aplicar as associations em TS:
-  * Associations 1:N devem ficar em uma das instâncias de modelo
-  * */
-
-// OtherModel.belongsTo(Example, { foreignKey: 'campoA', as: 'campoEstrangeiroA' });
-// OtherModel.belongsTo(Example, { foreignKey: 'campoB', as: 'campoEstrangeiroB' });
-
-// Example.hasMany(OtherModel, { foreignKey: 'campoC', as: 'campoEstrangeiroC' });
-// Example.hasMany(OtherModel, { foreignKey: 'campoD', as: 'campoEstrangeiroD' });
+Match.belongsTo(Team, { foreignKey: 'homeTeamId', as: 'homeTeam' });
+Match.belongsTo(Team, { foreignKey: 'awayTeamId', as: 'awayTeam' });
