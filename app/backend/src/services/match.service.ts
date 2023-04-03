@@ -24,4 +24,12 @@ export default class MatchService {
       },
     });
   };
+
+  public updateResult = async (id: number, homeTeamGoals: number, awayTeamGoals: number) => {
+    await this._matches.update({ homeTeamGoals, awayTeamGoals }, {
+      where: {
+        id,
+      },
+    });
+  };
 }
