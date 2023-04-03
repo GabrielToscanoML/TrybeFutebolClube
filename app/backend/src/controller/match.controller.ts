@@ -6,21 +6,16 @@ export default class MatchController {
   private _matchService = new MatchService();
 
   public findAll = async (
-    _req: Request,
+    req: Request,
     res: Response,
   )
   : Promise<Response | void> => {
+    const q = <string> req.query.inProgress;
     const result: IMatch[] = await this._matchService.getAll();
-    return res.status(200).json(result);
+    if (!q) {
+      return res.status(200).json(result);
+    }
+    const resultFiltered = result.filter((match) => match.inProgress.toString() === q);
+    return res.status(200).json(resultFiltered);
   };
-
-  // public findOne = async (
-  //   req: Request,
-  //   res: Response,
-  // )
-  // : Promise<Response | void> => {
-  //   const { id } = req.params;
-  //   const result: IMatch = await this._matchService.getById(Number(id));
-  //   return res.status(200).json(result);
-  // };
 }

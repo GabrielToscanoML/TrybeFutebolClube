@@ -46,14 +46,6 @@ Match.init({
     type: BOOLEAN,
     allowNull: false,
   },
-  // homeTeam: {
-  //   type: BOOLEAN,
-  //   allowNull: false,
-  // },
-  // awayTeam: {
-  //   type: BOOLEAN,
-  //   allowNull: false,
-  // },
 }, {
   underscored: true,
   sequelize: db,

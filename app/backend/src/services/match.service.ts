@@ -16,9 +16,4 @@ export default class MatchService {
     });
     return result;
   };
-
-  // public getById = async (id: number): Promise<IMatch> => {
-  //   const result = <IMatch & RowDataPacket> await this._matches.findOne({ where: { id } });
-  //   return result;
-  // };
 }
