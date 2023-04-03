@@ -28,7 +28,6 @@ export const validateEmail = async (
   const { email } = req.body;
   const emailRegex = /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/;
   const emailCheck = emailRegex.test(email);
-
   if (!emailCheck) return res.status(401).json({ message: 'Invalid email or password' });
   next();
 };
