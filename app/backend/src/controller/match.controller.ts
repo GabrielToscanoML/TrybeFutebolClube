@@ -39,4 +39,23 @@ export default class MatchController {
     await this._matchService.updateResult(+id, +homeTeamGoals, +awayTeamGoals);
     return res.status(200).json({ message: 'Finished' });
   };
+
+  public createMatch = async (
+    req: Request,
+    res: Response,
+  )
+  : Promise<Response | void> => {
+    const { homeTeamId, awayTeamId, homeTeamGoals, awayTeamGoals } = req.body;
+    const allMatches: IMatch[] = await this._matchService.getAll();
+    const newMatch = {
+      id: allMatches.length + 1,
+      homeTeamId,
+      awayTeamId,
+      homeTeamGoals,
+      awayTeamGoals,
+      inProgress: true,
+    };
+    await this._matchService.createMatch(newMatch);
+    return res.status(201).json(newMatch);
+  };
 }

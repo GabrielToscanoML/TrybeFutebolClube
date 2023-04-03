@@ -32,4 +32,10 @@ export default class MatchService {
       },
     });
   };
+
+  public createMatch = async (matchData: IMatch) => {
+    const { id, homeTeamId, homeTeamGoals, awayTeamId, awayTeamGoals, inProgress } = matchData;
+    await this._matches.create({
+      id, homeTeamId, awayTeamId, homeTeamGoals, awayTeamGoals, inProgress });
+  };
 }
