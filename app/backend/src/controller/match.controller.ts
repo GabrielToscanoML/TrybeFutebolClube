@@ -18,4 +18,14 @@ export default class MatchController {
     const resultFiltered = result.filter((match) => match.inProgress.toString() === q);
     return res.status(200).json(resultFiltered);
   };
+
+  public finishMatch = async (
+    req: Request,
+    res: Response,
+  )
+  : Promise<Response | void> => {
+    const { id } = req.params;
+    await this._matchService.finishMatch(+id);
+    return res.status(200).json({ message: 'Finished' });
+  };
 }
