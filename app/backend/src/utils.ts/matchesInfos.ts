@@ -3,6 +3,7 @@ import { ILeaderBoard, IMatch, ITeams } from '../interfaces';
 import MatchService from '../services/match.service';
 
 const obj = {
+  name: '',
   totalPoints: 0,
   totalGames: 0,
   totalVictories: 0,
@@ -14,6 +15,7 @@ const obj = {
   efficiency: 0.0,
 };
 const resetObj = ():void => {
+  obj.name = '';
   obj.totalPoints = 0;
   obj.totalGames = 0;
   obj.totalVictories = 0;
@@ -45,7 +47,7 @@ const calculateTotalPoints = (home: number, away: number) => {
   return 0;
 };
 
-const calculateMatchesDataHome = (data: IMatch[]): ILeaderBoard => {
+const calculateMatchesDataHome = (data: IMatch[], name: string): ILeaderBoard => {
   resetObj();
   data.forEach((match) => {
     const TP = calculateTotalPoints(match.homeTeamGoals, match.awayTeamGoals);
@@ -57,10 +59,11 @@ const calculateMatchesDataHome = (data: IMatch[]): ILeaderBoard => {
     obj.goalsFavor += match.homeTeamGoals;
     obj.goalsOwn += match.awayTeamGoals;
   });
+  obj.name = name;
   return obj;
 };
 
-const calculateMatchesDataAway = (data: IMatch[]): ILeaderBoard => {
+const calculateMatchesDataAway = (data: IMatch[], name: string): ILeaderBoard => {
   resetObj();
   data.forEach((match) => {
     const TP = calculateTotalPoints(match.awayTeamGoals, match.homeTeamGoals);
@@ -72,6 +75,7 @@ const calculateMatchesDataAway = (data: IMatch[]): ILeaderBoard => {
     obj.goalsFavor += match.awayTeamGoals;
     obj.goalsOwn += match.homeTeamGoals;
   });
+  obj.name = name;
   return obj;
 };
 
@@ -85,10 +89,9 @@ const calculateGoalsAndEfficiency = (data: ILeaderBoard): object => {
 const teamMatchesHome = async (team: ITeams): Promise<ILeaderBoard> => {
   const matches = <IMatch[]> await finishedMatches();
   const matchesFilter: IMatch[] = matches.filter((match: IMatch) => (match.homeTeamId === team.id));
-  const calculateResult = calculateMatchesDataHome(matchesFilter);
+  const calculateResult = calculateMatchesDataHome(matchesFilter, team.teamName);
   const goalsAndEfficiency = calculateGoalsAndEfficiency(calculateResult);
   const result = <ILeaderBoard>{
-    name: team.teamName,
     ...calculateResult,
     ...goalsAndEfficiency,
   };
@@ -98,10 +101,9 @@ const teamMatchesHome = async (team: ITeams): Promise<ILeaderBoard> => {
 const teamMatchesAway = async (team: ITeams): Promise<ILeaderBoard> => {
   const matches = <IMatch[]> await finishedMatches();
   const matchesFilter: IMatch[] = matches.filter((match: IMatch) => (match.awayTeamId === team.id));
-  const calculateResult = calculateMatchesDataAway(matchesFilter);
+  const calculateResult = calculateMatchesDataAway(matchesFilter, team.teamName);
   const goalsAndEfficiency = calculateGoalsAndEfficiency(calculateResult);
   const result = <ILeaderBoard>{
-    name: team.teamName,
     ...calculateResult,
     ...goalsAndEfficiency,
   };
@@ -131,6 +133,31 @@ export const sortLeaderBoard = (leaderboard: ILeaderBoard[]) => {
       || (teamB.goalsBalance - teamA.goalsBalance)
       || (teamB.goalsFavor - teamA.goalsFavor),
   );
+  return result;
+};
+
+const leaderboardFinal = (teamA: ILeaderBoard, teamB: ILeaderBoard): ILeaderBoard => {
+  const result: ILeaderBoard = teamA;
+  result.name = teamA.name;
+  result.totalPoints = teamA.totalPoints + teamB.totalPoints;
+  result.totalGames = teamA.totalGames + teamB.totalGames;
+  result.totalVictories = teamA.totalVictories + teamB.totalVictories;
+  result.totalDraws = teamA.totalDraws + teamB.totalDraws;
+  result.totalLosses = teamA.totalLosses + teamB.totalLosses;
+  result.goalsFavor = teamA.goalsFavor + teamB.goalsFavor;
+  result.goalsOwn = teamA.goalsOwn + teamB.goalsOwn;
+  result.goalsBalance = (result.goalsFavor - result.goalsOwn);
+  result.efficiency = parseFloat(((result.totalPoints / (result.totalGames * 3)) * 100).toFixed(2));
+  return result;
+};
+
+export const resultHomeAndAway = (home: ILeaderBoard[], away: ILeaderBoard[]) => {
+  home.sort(); // ordenando por ordem alfabética
+  away.sort(); // ordenando por ordem alfabética
+  const result: ILeaderBoard[] = [];
+  for (let index = 0; index < home.length; index += 1) {
+    result.push(leaderboardFinal(home[index], away[index]));
+  }
   return result;
 };
 

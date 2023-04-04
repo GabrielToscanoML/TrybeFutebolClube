@@ -25,4 +25,14 @@ export default class LeaderBoardController {
     const result = sortLeaderBoard(leaderboardTeams);
     return res.status(200).json(result);
   };
+
+  public findAll = async (
+    _req: Request,
+    res: Response,
+  )
+  : Promise<Response | void> => {
+    const leaderboardTeams: ILeaderBoard[] = await this._leaderBoardService.getAllLeaderBoard();
+    const result = sortLeaderBoard(leaderboardTeams);
+    return res.status(200).json(result);
+  };
 }
