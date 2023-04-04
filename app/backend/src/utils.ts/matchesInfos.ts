@@ -10,7 +10,21 @@ const obj = {
   totalLosses: 0,
   goalsFavor: 0,
   goalsOwn: 0,
+  goalsBalance: 0,
+  efficiency: 0.0,
 };
+const resetObj = ():void => {
+  obj.totalPoints = 0;
+  obj.totalGames = 0;
+  obj.totalVictories = 0;
+  obj.totalDraws = 0;
+  obj.totalLosses = 0;
+  obj.goalsFavor = 0;
+  obj.goalsOwn = 0;
+  obj.goalsBalance = 0;
+  obj.efficiency = 0.0;
+};
+
 // Pego todas as partidas que foram finalizadas
 const finishedMatches = async (): Promise<void | IMatch[]> => {
   const matchesObj = new MatchService();
@@ -31,19 +45,34 @@ const calculateTotalPoints = (home: number, away: number) => {
   return 0;
 };
 
-const calculateMatchesData = (data: IMatch[]): ILeaderBoard => {
-  const objDefault = obj;
+const calculateMatchesDataHome = (data: IMatch[]): ILeaderBoard => {
+  resetObj();
   data.forEach((match) => {
     const TP = calculateTotalPoints(match.homeTeamGoals, match.awayTeamGoals);
-    objDefault.totalPoints += TP;
-    objDefault.totalGames += 1;
-    if (TP === 3) objDefault.totalVictories += 1;
-    if (TP === 1) objDefault.totalDraws += 1;
-    if (TP === 0) objDefault.totalLosses += 1;
-    objDefault.goalsFavor += match.homeTeamGoals;
-    objDefault.goalsOwn += match.awayTeamGoals;
+    obj.totalPoints += TP;
+    obj.totalGames += 1;
+    if (TP === 3) obj.totalVictories += 1;
+    if (TP === 1) obj.totalDraws += 1;
+    if (TP === 0) obj.totalLosses += 1;
+    obj.goalsFavor += match.homeTeamGoals;
+    obj.goalsOwn += match.awayTeamGoals;
   });
-  return objDefault;
+  return obj;
+};
+
+const calculateMatchesDataAway = (data: IMatch[]): ILeaderBoard => {
+  resetObj();
+  data.forEach((match) => {
+    const TP = calculateTotalPoints(match.awayTeamGoals, match.homeTeamGoals);
+    obj.totalPoints += TP;
+    obj.totalGames += 1;
+    if (TP === 3) obj.totalVictories += 1;
+    if (TP === 1) obj.totalDraws += 1;
+    if (TP === 0) obj.totalLosses += 1;
+    obj.goalsFavor += match.awayTeamGoals;
+    obj.goalsOwn += match.homeTeamGoals;
+  });
+  return obj;
 };
 
 const calculateGoalsAndEfficiency = (data: ILeaderBoard): object => {
@@ -53,10 +82,10 @@ const calculateGoalsAndEfficiency = (data: ILeaderBoard): object => {
   return result;
 };
 
-const teamMatches = async (team: ITeams): Promise<ILeaderBoard> => {
+const teamMatchesHome = async (team: ITeams): Promise<ILeaderBoard> => {
   const matches = <IMatch[]> await finishedMatches();
   const matchesFilter: IMatch[] = matches.filter((match: IMatch) => (match.homeTeamId === team.id));
-  const calculateResult = calculateMatchesData(matchesFilter);
+  const calculateResult = calculateMatchesDataHome(matchesFilter);
   const goalsAndEfficiency = calculateGoalsAndEfficiency(calculateResult);
   const result = <ILeaderBoard>{
     name: team.teamName,
@@ -66,11 +95,41 @@ const teamMatches = async (team: ITeams): Promise<ILeaderBoard> => {
   return result;
 };
 
-const leaderBoardResult = async (): Promise<ILeaderBoard[]> => {
+const teamMatchesAway = async (team: ITeams): Promise<ILeaderBoard> => {
+  const matches = <IMatch[]> await finishedMatches();
+  const matchesFilter: IMatch[] = matches.filter((match: IMatch) => (match.awayTeamId === team.id));
+  const calculateResult = calculateMatchesDataAway(matchesFilter);
+  const goalsAndEfficiency = calculateGoalsAndEfficiency(calculateResult);
+  const result = <ILeaderBoard>{
+    name: team.teamName,
+    ...calculateResult,
+    ...goalsAndEfficiency,
+  };
+  return result;
+};
+
+const leaderBoardResult = async (data: 'home' | 'away'): Promise<ILeaderBoard[]> => {
   const teams = await allTeams();
 
+  if (data === 'home') {
+    const result: ILeaderBoard[] = await Promise.all(
+      teams.map((team: ITeams) => teamMatchesHome(team)),
+    );
+    return result;
+  }
   const result: ILeaderBoard[] = await Promise.all(
-    teams.map((team: ITeams) => teamMatches(team)),
+    teams.map((team: ITeams) => teamMatchesAway(team)),
+  );
+  return result;
+};
+
+export const sortLeaderBoard = (leaderboard: ILeaderBoard[]) => {
+  const result = leaderboard.sort(
+    (teamA, teamB) =>
+      (teamB.totalPoints - teamA.totalPoints)
+      || (teamB.totalVictories - teamA.totalVictories)
+      || (teamB.goalsBalance - teamA.goalsBalance)
+      || (teamB.goalsFavor - teamA.goalsFavor),
   );
   return result;
 };

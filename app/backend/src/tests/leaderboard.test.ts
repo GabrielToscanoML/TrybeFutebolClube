@@ -9,16 +9,16 @@ chai.use(chaiHttp);
 
 const { expect } = chai;
 
-describe('GET /leaderboard/home', () => {
+describe('GET /leaderboard', () => {
   describe('Retornando ta classificação baseado nos times da casa', () => {
-    it('Retornando status 200 quando é feita a requisição', async () => {
+    it('Retornando status 200 quando é feita a requisição para /home', async () => {
       const httpResponse = await chai.request(app).get('/leaderboard/home');
       expect(httpResponse.status).to.equal(200);
     });
 
-    // it('Retornando as partidas em progresso', async () => {
-    //   const httpResponse = await chai.request(app).get('/matches?inProgress=true');
-    //   expect(httpResponse.status).to.equal(200);
-    // });
+    it('Retornando status 200 quando é feita a requisição para /away', async () => {
+      const httpResponse = await chai.request(app).get('/leaderboard/away');
+      expect(httpResponse.status).to.equal(200);
+    });
   });
 });
