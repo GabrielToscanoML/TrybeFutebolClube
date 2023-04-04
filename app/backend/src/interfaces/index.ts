@@ -24,3 +24,14 @@ export interface IMatch {
   awayTeamGoals: number;
   inProgress: boolean;
 }
+
+export interface ILeaderBoard {
+  name?: string;
+  totalPoints: number;
+  totalGames: number;
+  totalVictories: number;
+  totalDraws: number;
+  totalLosses: number;
+  goalsFavor: number;
+  goalsOwn: number;
+}
