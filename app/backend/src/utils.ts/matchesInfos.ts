@@ -46,12 +46,22 @@ const calculateMatchesData = (data: IMatch[]): ILeaderBoard => {
   return objDefault;
 };
 
+const calculateGoalsAndEfficiency = (data: ILeaderBoard): object => {
+  const result = { goalsBalance: 0, efficiency: 0.0 };
+  result.goalsBalance = (data.goalsFavor - data.goalsOwn);
+  result.efficiency = parseFloat(((data.totalPoints / (data.totalGames * 3)) * 100).toFixed(2));
+  return result;
+};
+
 const teamMatches = async (team: ITeams): Promise<ILeaderBoard> => {
   const matches = <IMatch[]> await finishedMatches();
   const matchesFilter: IMatch[] = matches.filter((match: IMatch) => (match.homeTeamId === team.id));
+  const calculateResult = calculateMatchesData(matchesFilter);
+  const goalsAndEfficiency = calculateGoalsAndEfficiency(calculateResult);
   const result = <ILeaderBoard>{
     name: team.teamName,
-    ...calculateMatchesData(matchesFilter),
+    ...calculateResult,
+    ...goalsAndEfficiency,
   };
   return result;
 };
